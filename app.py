@@ -21,6 +21,9 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
 import pickle
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import KFold
+from sklearn.model_selection import LeaveOneOut
 from sklearn.preprocessing import StandardScaler
 try:
  
@@ -110,7 +113,7 @@ if datasetchoice=='No':
   if st.checkbox("Correlation Plot[Seaborn]"):
     st.write(sns.heatmap(df.corr(),annot=True))
     st.pyplot()
-
+  
 
   # Pie Chart
   if st.checkbox("Pie Plot"):
@@ -213,7 +216,20 @@ if datasetchoice=='No':
       gamma= st.sidebar.radio("gamma(kernel coefficiency",("scale","auto"),key='gamma')
   
       metrics= st.sidebar.multiselect("What is the metrics to plot?",('confusion matrix','roc_curve','precision_recall_curve'))
-  
+      st.sidebar.subheader('Advanced Model Hyperparmeter')
+      model_optimizer = st.sidebar.selectbox(
+      'Choose Optimizer',
+      ('Cross Validation', 'Grid Search', 'Random Search'))
+      if classifier_name == 'Cross Validation':
+          cv= st.sidebar.radio("cv",("Kfold","LeaveOneOut"),key='cv')
+          if cv=='Kfold':
+              n_splits= st.sidebar.slider("maximum number of splits",1,30,key='n_splits')
+              kfold= KFold(n_splits=n_splits)
+              score =  cross_val_score(SVM(),X,y,cv=kfold)
+              st.write("Accuracy:",score.round(2))
+                              
+             
+      
       if st.sidebar.button("classify",key='classify'):
           st.subheader("SVM result")
           svcclassifier= SVC(C=c,kernel=kernel,gamma=gamma)
